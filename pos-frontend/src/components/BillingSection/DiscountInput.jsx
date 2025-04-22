@@ -13,14 +13,14 @@ const DiscountInput = ({
   showDiscountOverlay,
 }) => {
   const handleDone = () => {
-    handleApplyDiscount()
+    handleApplyDiscount(discountValue) // Pass only the discountValue to the backend
     setShowDiscountOverlay(false)
   }
 
   const handleRemoveDiscount = () => {
     setDiscountValue(0)
     setShowDiscountOverlay(false)
-    handleApplyDiscount(0)
+    handleApplyDiscount(0) // Send 0 to the backend when discount is removed
   }
 
   return (

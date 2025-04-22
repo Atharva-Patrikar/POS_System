@@ -101,7 +101,7 @@ const BillingSection = ({
   }
 
   return (
-    <div className="w-2/5 bg-white border-l border-gray-200 shadow-sm flex flex-col h-screen">
+    <div className="w-2/4 bg-white border-l border-gray-200 shadow-sm flex flex-col h-screen">
     {/* Scrollable Area */}
     <div className="p-2">
       <OrderTypeToggle
@@ -123,7 +123,7 @@ const BillingSection = ({
       />
 
       <div className="mt-1 px-2">
-        <div className="h-[225px] overflow-y-auto pr-1">
+        <div className="h-[200px] overflow-y-auto pr-1">
           <SelectedItems
             cart={cart}
             removeFromCart={removeFromCart}
@@ -159,11 +159,12 @@ const BillingSection = ({
 
       <div className="mb-3">
         <label className="block text-xs font-medium text-gray-700 mb-1">Payment Method</label>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-4 gap-2">
           {[
             { label: "Cash", icon: <FaMoneyBillWave className="text-sm" /> },
             { label: "Card", icon: <FaCreditCard className="text-sm" /> },
             { label: "UPI", icon: <FaMobile className="text-sm" /> },
+            { label: "Part" },
           ].map((method) => (
             <button
               key={method.label}

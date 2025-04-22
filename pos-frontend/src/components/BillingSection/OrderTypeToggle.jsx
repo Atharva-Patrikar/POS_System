@@ -1,7 +1,7 @@
 "use client";
 
 import { UserRound, Users, StickyNote, ConciergeBell, FilePenLine, CheckCircle, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import debounce from "lodash.debounce";
 
 const OrderTypeToggle = ({
@@ -21,6 +21,28 @@ const OrderTypeToggle = ({
   setShowCartView,
 }) => {
   const [isExistingCustomer, setIsExistingCustomer] = useState(false);
+  const [orderNumber, setOrderNumber] = useState(null); // To store the order number
+
+  // Fetch order number from backend when the component mounts
+  useEffect(() => {
+    const fetchNewOrderNumber = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/orders/new-order-number");
+        const result = await response.json();
+        
+        if (result.success) {
+          setOrderNumber(result.new_order_number); // Assuming you have a state for order number
+        } else {
+          console.error("Failed to fetch new order number.");
+        }
+      } catch (error) {
+        console.error("Error fetching new order number:", error);
+      }
+    };
+    
+    // Call this function when needed (e.g., before creating an order)
+    fetchNewOrderNumber();
+  }, []);
 
   const saveCustomerToBackend = async (name, phone, address) => {
     try {
@@ -112,7 +134,8 @@ const OrderTypeToggle = ({
 
         <div className="flex items-center gap-1 text-sm text-gray-700">
           <FilePenLine size={16} className="text-gray-600" />
-          <span className="font-medium">Order #12345</span>
+          {/* Displaying dynamic order number */}
+          <span className="font-medium">Order #{orderNumber || "Loading..."}</span>
         </div>
       </div>
 

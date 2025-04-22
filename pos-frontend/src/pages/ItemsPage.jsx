@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-//import { BillingContext } from "../context/BillingContext"
+import { useState, useEffect, useContext } from "react"
+import { CartContext } from "../context/CartContext";
 import BillingSection from "../components/BillingSection/BillingSection"
 import axios from "axios"
 import { FaUtensils, FaMotorcycle, FaShoppingBag } from "react-icons/fa"
@@ -12,7 +12,7 @@ const ItemsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [allDishes, setAllDishes] = useState([])
   const [dishes, setDishes] = useState([])
-  const [cart, setCart] = useState([])
+  const { cart, setCart } = useContext(CartContext);
   const [paymentMethod, setPaymentMethod] = useState("Cash")
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("Dine In")
@@ -86,9 +86,9 @@ const ItemsPage = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
+    <div className="h-screen flex flex-col bg-gray-50 overflow-y-hidden">
       {/* Search Bar and Tabs */}
-      <div className="bg-white border-b border-gray-200 shadow-sm">
+      <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
         <div className="flex items-center p-3">
           <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
           <div className="ml-4 flex items-center">
@@ -145,7 +145,7 @@ const ItemsPage = () => {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Category Sidebar */}
-        <div className="w-1/6 bg-white border-r border-gray-200 overflow-y-auto">
+        <div className="w-1/6.5 bg-white border-r border-gray-200 overflow-y-auto h-[555px]">
           <div className="py-2">
             {categories.map((category) => (
               <div
@@ -167,7 +167,7 @@ const ItemsPage = () => {
         {/* Dishes Section */}
         <div className="w-1/2 flex flex-col bg-gray-50 overflow-hidden">
           {/* Dish Grid */}
-          <div className="flex-1 overflow-y-auto h-full">
+          <div className="flex-1 overflow-y-auto h-[560px]">
             <div className="grid grid-cols-3 gap-3">
               {filteredDishes.map((dish) => (
                 <div
