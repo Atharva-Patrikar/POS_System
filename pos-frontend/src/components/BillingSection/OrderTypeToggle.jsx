@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import { UserRound, Users, StickyNote, ConciergeBell, FilePenLine, CheckCircle, X } from "lucide-react";
-import { useState, useEffect } from "react";
-import debounce from "lodash.debounce";
+import { UserRound, Users, StickyNote, ConciergeBell, FilePenLine, CheckCircle, X } from "lucide-react"
+import { useState, useEffect } from "react"
+import debounce from "lodash.debounce"
 
 const OrderTypeToggle = ({
   showCustomerForm,
@@ -19,30 +19,33 @@ const OrderTypeToggle = ({
   showPeopleInput,
   setShowPeopleInput,
   setShowCartView,
+  partPaymentDetails, // Assuming this prop will be passed
+  setShowPartModal, // Assuming this prop is passed for showing the part payment modal
 }) => {
-  const [isExistingCustomer, setIsExistingCustomer] = useState(false);
-  const [orderNumber, setOrderNumber] = useState(null); // To store the order number
+  const [isExistingCustomer, setIsExistingCustomer] = useState(false)
+  const [orderNumber, setOrderNumber] = useState(null) // To store the order number
+  const [showPartSummaryModal, setShowPartSummaryModal] = useState(false)
 
   // Fetch order number from backend when the component mounts
   useEffect(() => {
     const fetchNewOrderNumber = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/orders/new-order-number");
-        const result = await response.json();
-        
+        const response = await fetch("http://localhost:5000/api/orders/new-order-number")
+        const result = await response.json()
+
         if (result.success) {
-          setOrderNumber(result.new_order_number); // Assuming you have a state for order number
+          setOrderNumber(result.new_order_number) // Assuming you have a state for order number
         } else {
-          console.error("Failed to fetch new order number.");
+          console.error("Failed to fetch new order number.")
         }
       } catch (error) {
-        console.error("Error fetching new order number:", error);
+        console.error("Error fetching new order number:", error)
       }
-    };
-    
+    }
+
     // Call this function when needed (e.g., before creating an order)
-    fetchNewOrderNumber();
-  }, []);
+    fetchNewOrderNumber()
+  }, [])
 
   const saveCustomerToBackend = async (name, phone, address) => {
     try {
@@ -50,42 +53,42 @@ const OrderTypeToggle = ({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, phone, address }),
-      });
+      })
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Failed to save customer");
-      return data;
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.message || "Failed to save customer")
+      return data
     } catch (err) {
-      console.error("Error saving customer:", err);
-      throw err;
+      console.error("Error saving customer:", err)
+      throw err
     }
-  };
+  }
 
   const fetchCustomerByMobile = debounce(async (mobile) => {
     try {
-      if (!mobile.trim()) return;
-      const res = await fetch(`http://localhost:5000/api/customers/by-phone?phone=${encodeURIComponent(mobile)}`);
-      const customer = await res.json();
+      if (!mobile.trim()) return
+      const res = await fetch(`http://localhost:5000/api/customers/by-phone?phone=${encodeURIComponent(mobile)}`)
+      const customer = await res.json()
 
       if (customer && customer.name) {
-        setCustomerName(customer.name || "");
-        setCustomerAddress(customer.address || "");
-        setIsExistingCustomer(true);
+        setCustomerName(customer.name || "")
+        setCustomerAddress(customer.address || "")
+        setIsExistingCustomer(true)
       } else {
-        setCustomerName("");
-        setCustomerAddress("");
-        setIsExistingCustomer(false);
+        setCustomerName("")
+        setCustomerAddress("")
+        setIsExistingCustomer(false)
       }
     } catch (error) {
-      console.error("Customer fetch error:", error);
+      console.error("Customer fetch error:", error)
     }
-  }, 300);
+  }, 300)
 
   const closeAllOverlays = () => {
-    setShowCustomerForm(false);
-    setShowPeopleInput(false);
-    setShowCartView(true);
-  };
+    setShowCustomerForm(false)
+    setShowPeopleInput(false)
+    setShowCartView(true)
+  }
 
   return (
     <>
@@ -96,9 +99,9 @@ const OrderTypeToggle = ({
             className="p-1.5 bg-gray-100 rounded hover:bg-gray-200 border border-gray-300"
             title="Customer Info"
             onClick={() => {
-              setShowCustomerForm(true);
-              setShowPeopleInput(false);
-              setShowCartView(false);
+              setShowCustomerForm(true)
+              setShowPeopleInput(false)
+              setShowCartView(false)
             }}
           >
             <UserRound size={16} className="text-gray-700" />
@@ -111,9 +114,9 @@ const OrderTypeToggle = ({
             className={`p-1.5 rounded border ${peopleCount > 0 ? "bg-green-100 border-green-500 text-green-700" : "bg-gray-100 hover:bg-gray-200 border-gray-300"}`}
             title="No. of People"
             onClick={() => {
-              setShowPeopleInput(true);
-              setShowCustomerForm(false);
-              setShowCartView(false);
+              setShowPeopleInput(true)
+              setShowCustomerForm(false)
+              setShowCartView(false)
             }}
           >
             <Users size={16} />
@@ -121,7 +124,10 @@ const OrderTypeToggle = ({
 
           <span className="h-5 w-px bg-gray-300" />
 
-          <button className="p-1.5 bg-gray-100 rounded hover:bg-gray-200 border border-gray-300" title="Order Instructions">
+          <button
+            className="p-1.5 bg-gray-100 rounded hover:bg-gray-200 border border-gray-300"
+            title="Order Instructions"
+          >
             <StickyNote size={16} className="text-gray-700" />
           </button>
 
@@ -133,8 +139,33 @@ const OrderTypeToggle = ({
         </div>
 
         <div className="flex items-center gap-1 text-sm text-gray-700">
+          {/* Enquiry Icon - Visible only if part payment details exist */}
+          {partPaymentDetails && (
+            <button
+              className="p-1.5 mr-2 bg-yellow-50 rounded hover:bg-yellow-100 border border-yellow-300"
+              title="View Part Payment Details"
+              onClick={() => setShowPartSummaryModal(true)} // Open part payment modal to show details
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-yellow-600"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+            </button>
+          )}
+
           <FilePenLine size={16} className="text-gray-600" />
-          {/* Displaying dynamic order number */}
           <span className="font-medium">Order #{orderNumber || "Loading..."}</span>
         </div>
       </div>
@@ -152,9 +183,9 @@ const OrderTypeToggle = ({
               type="tel"
               value={customerMobile}
               onChange={(e) => {
-                const value = e.target.value;
-                setCustomerMobile(value);
-                fetchCustomerByMobile(value);
+                const value = e.target.value
+                setCustomerMobile(value)
+                fetchCustomerByMobile(value)
               }}
               className="w-full mb-2 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none"
             />
@@ -181,27 +212,26 @@ const OrderTypeToggle = ({
                 try {
                   if (!isExistingCustomer) {
                     // If the customer doesn't exist, save the new customer to the backend
-                    await saveCustomerToBackend(customerName, customerMobile, customerAddress);
-                    alert("Customer saved successfully");
+                    await saveCustomerToBackend(customerName, customerMobile, customerAddress)
+                    alert("Customer saved successfully")
                   } else {
                     // If the customer exists, skip the backend call and just show the alert
-                    alert("Customer already exists.");
+                    alert("Customer already exists.")
                   }
 
                   // Regardless of whether the customer is new or not, call handleSaveCustomer to update the state/UI
-                  handleSaveCustomer();
-                  closeAllOverlays();
+                  handleSaveCustomer()
+                  closeAllOverlays()
                 } catch (error) {
                   // Show error only when trying to save a new customer and it fails
                   if (!isExistingCustomer) {
-                    alert("Failed to save customer. Please try again.");
+                    alert("Failed to save customer. Please try again.")
                   }
                 }
               }}
             >
               Save
             </button>
-
           </div>
         </div>
       )}
@@ -223,18 +253,105 @@ const OrderTypeToggle = ({
                 value={peopleCount}
                 onChange={(e) => setPeopleCount(Number(e.target.value))}
               />
-              <button
-                className="text-green-600 hover:text-green-800"
-                onClick={closeAllOverlays}
-              >
+              <button className="text-green-600 hover:text-green-800" onClick={closeAllOverlays}>
                 <CheckCircle size={20} />
               </button>
             </div>
           </div>
         </div>
       )}
-    </>
-  );
-};
 
-export default OrderTypeToggle;
+      {/* Part Payment Summary Modal */}
+      <div className="relative inline-block">
+        {/* Show icon only if part payment details exist */}
+        {/* Part Payment Summary Modal */}
+          <div className="relative inline-block">
+            {partPaymentDetails && (
+              <button
+                className="p-1.5 bg-yellow-50 rounded hover:bg-yellow-100 border border-yellow-300"
+                title="View Part Payment Details"
+                onClick={() => setShowPartSummaryModal(!showPartSummaryModal)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-yellow-600"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+              </button>
+            )}
+
+            {showPartSummaryModal && (
+              <div className="absolute left-0 top-full mt-2 z-50 bg-white p-4 rounded-lg shadow-lg w-80 border border-gray-200">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-sm font-semibold">Part Payment Details</h3>
+                  <button
+                    onClick={() => setShowPartSummaryModal(false)}
+                    className="text-gray-500 hover:text-black"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+
+                <div className="space-y-2 max-h-60 overflow-y-auto text-sm">
+                  {partPaymentDetails.split("\n").map((line, index) => {
+                    let formattedLine = line.includes("UPI")
+                      ? line.replace("Paid via UPI", "Paid via Other [UPI]")
+                      : line;
+
+                    return (
+                      <div key={index} className="py-1 border-b">
+                        {formattedLine}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+
+        {/* Pop-up displayed below icon */}
+        {showPartSummaryModal && (
+          <div className="absolute left-0 top-full mt-2 z-50 bg-white p-4 rounded-lg shadow-lg w-80 border border-gray-200">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-sm font-semibold">Part Payment Details</h3>
+              <button
+                onClick={() => setShowPartSummaryModal(false)}
+                className="text-gray-500 hover:text-black"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-2 max-h-60 overflow-y-auto text-sm">
+              {partPaymentDetails.split("\n").map((line, index) => {
+                let formattedLine = line.includes("UPI")
+                  ? line.replace("Paid via UPI", "Paid via Other [UPI]")
+                  : line;
+
+                return (
+                  <div key={index} className="py-1 border-b">
+                    {formattedLine}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  )
+}
+
+export default OrderTypeToggle

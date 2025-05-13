@@ -7,6 +7,7 @@ import SelectedItems from "./SelectedItems"
 import DiscountInput from "./DiscountInput"
 import TotalSummary from "./TotalSummary"
 import ActionButtons from "./ActionButtons"
+import PartPaymentModal from "../PartPaymentModal"
 
 const BillingSection = ({
   cart,
@@ -24,7 +25,7 @@ const BillingSection = ({
   customerAddress,
   setCustomerAddress,
   activeTab,
-  setActiveTab,  // Ensure setActiveTab is passed here
+  setActiveTab,
 }) => {
   const [pdfUrl, setPdfUrl] = useState(null)
   const [showDiscount, setShowDiscount] = useState(false)
@@ -34,6 +35,8 @@ const BillingSection = ({
   const [showPeopleInput, setShowPeopleInput] = useState(false)
   const [showCustomerForm, setShowCustomerForm] = useState(false)
   const [showDiscountOverlay, setShowDiscountOverlay] = useState(false)
+  const [showPartModal, setShowPartModal] = useState(false)
+  const [partPaymentDetails, setPartPaymentDetails] = useState(null)
 
   useEffect(() => {
     if (cart.length === 0) {
@@ -44,11 +47,9 @@ const BillingSection = ({
   }, [cart])
 
   const updateQuantity = (id, qty) => {
-    const newQty = parseInt(qty, 10)
+    const newQty = Number.parseInt(qty, 10)
     if (!isNaN(newQty) && newQty > 0) {
-      setCart((prevCart) =>
-        prevCart.map((item) => (item.id === id ? { ...item, qty: newQty } : item))
-      )
+      setCart((prevCart) => prevCart.map((item) => (item.id === id ? { ...item, qty: newQty } : item)))
     }
   }
 
@@ -58,24 +59,21 @@ const BillingSection = ({
 
   const removeFromCart = (id) => {
     setCart((prevCart) =>
-      prevCart
-        .map((item) => (item.id === id ? { ...item, qty: item.qty - 1 } : item))
-        .filter((item) => item.qty > 0)
+      prevCart.map((item) => (item.id === id ? { ...item, qty: item.qty - 1 } : item)).filter((item) => item.qty > 0),
     )
   }
 
   const addToCart = (dish) => {
-    setCart((prevCart) =>
-      prevCart.map((item) => (item.id === dish.id ? { ...item, qty: item.qty + 1 } : item))
-    )
+    setCart((prevCart) => prevCart.map((item) => (item.id === dish.id ? { ...item, qty: item.qty + 1 } : item)))
   }
 
   const handleApplyDiscount = (overrideValue = null) => {
-    const valueToApply = overrideValue !== null ? parseFloat(overrideValue) : parseFloat(discountValue || 0)
+    const valueToApply =
+      overrideValue !== null ? Number.parseFloat(overrideValue) : Number.parseFloat(discountValue || 0)
     const amount = discountType === "percentage" ? (totalPrice * valueToApply) / 100 : valueToApply
     setAppliedDiscount(amount)
     setShowDiscountOverlay(false)
-  }   
+  }
 
   const handleRemoveDiscount = () => {
     setDiscountValue(0)
@@ -102,100 +100,131 @@ const BillingSection = ({
 
   return (
     <div className="w-2/4 bg-white border-l border-gray-200 shadow-sm flex flex-col h-screen">
-    {/* Scrollable Area */}
-    <div className="p-2">
-      <OrderTypeToggle
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        showCustomerForm={showCustomerForm}
-        setShowCustomerForm={setShowCustomerForm}
-        customerName={customerName}
-        setCustomerName={setCustomerName}
-        customerMobile={customerMobile}
-        setCustomerMobile={setCustomerMobile}
-        customerAddress={customerAddress}
-        setCustomerAddress={setCustomerAddress}
-        handleSaveCustomer={handleSaveCustomer}
-        peopleCount={peopleCount}
-        setPeopleCount={setPeopleCount}
-        showPeopleInput={showPeopleInput}
-        setShowPeopleInput={setShowPeopleInput}
-      />
+      {/* Scrollable Area */}
+      <div className="p-2">
+        <OrderTypeToggle
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          showCustomerForm={showCustomerForm}
+          setShowCustomerForm={setShowCustomerForm}
+          customerName={customerName}
+          setCustomerName={setCustomerName}
+          customerMobile={customerMobile}
+          setCustomerMobile={setCustomerMobile}
+          customerAddress={customerAddress}
+          setCustomerAddress={setCustomerAddress}
+          handleSaveCustomer={handleSaveCustomer}
+          peopleCount={peopleCount}
+          setPeopleCount={setPeopleCount}
+          showPeopleInput={showPeopleInput}
+          setShowPeopleInput={setShowPeopleInput}
+          partPaymentDetails={partPaymentDetails} // Passing part payment details
+          setShowPartModal={setShowPartModal} // Passing function to show part payment modal
+          showCartView={true} // Add this prop if it's used in OrderTypeToggle
+          setShowCartView={() => {}} // Add this prop if it's used in OrderTypeToggle
+        />
 
-      <div className="mt-1 px-2">
-        <div className="h-[200px] overflow-y-auto pr-1">
-          <SelectedItems
+        <div className="mt-1 px-2">
+          <div className="h-[200px] overflow-y-auto pr-1">
+            <SelectedItems
+              cart={cart}
+              removeFromCart={removeFromCart}
+              updateQuantity={updateQuantity}
+              addToCart={addToCart}
+              removeItem={removeItem}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Fixed Bottom Section */}
+      <div className="border-t border-gray-200 bg-gray-50 px-3 pt-2 pb-1">
+        <TotalSummary
+          totalPrice={totalPrice}
+          taxAmount={taxAmount}
+          appliedDiscount={appliedDiscount}
+          onDiscountClick={() => setShowDiscountOverlay(true)}
+        />
+
+        <DiscountInput
+          discountType={discountType}
+          setDiscountType={setDiscountType}
+          discountValue={discountValue}
+          setDiscountValue={setDiscountValue}
+          handleApplyDiscount={handleApplyDiscount}
+          appliedDiscount={appliedDiscount}
+          showDiscountOverlay={showDiscountOverlay}
+          setShowDiscountOverlay={setShowDiscountOverlay}
+          handleRemoveDiscount={handleRemoveDiscount}
+        />
+
+        <div className="mb-3 pb-2 border-b border-gray-300">
+          <div className="grid grid-cols-4 gap-2">
+            {["Cash", "Card", "UPI", "Part"].map((label) => {
+              const iconMap = {
+                Cash: <FaMoneyBillWave className="text-sm" />,
+                Card: <FaCreditCard className="text-sm" />,
+                UPI: <FaMobile className="text-sm" />,
+                Part: null,
+              }
+              return (
+                <button
+                  key={label}
+                  onClick={() => {
+                    if (label === "Part") {
+                      setShowPartModal(true)
+                      setPaymentMethod("Part") // Mark Part as active
+                    } else {
+                      setPaymentMethod(label)
+                      setPartPaymentDetails(null) // Clear part payment details if another method is selected
+                    }
+                  }}
+                  className={`flex items-center justify-center gap-1 px-2 py-1.5 text-xs rounded-md border transition-colors duration-150 ${
+                    paymentMethod === label
+                      ? "bg-black text-white border-black"
+                      : "bg-gray-100 text-gray-800 hover:bg-gray-200 border-gray-300"
+                  }`}
+                >
+                  {iconMap[label]}
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        <div className="mt-2">
+          <ActionButtons
             cart={cart}
-            removeFromCart={removeFromCart}
-            updateQuantity={updateQuantity}
-            addToCart={addToCart}
-            removeItem={removeItem}
+            grandTotal={grandTotal}
+            paymentMethod={paymentMethod}
+            setPdfUrl={setPdfUrl}
+            pdfUrl={pdfUrl}
+            tableNumber={tableNumber}
+            peopleCount={peopleCount}
+            customerDetails={customerDetails}
+            activeTab={activeTab}
+            orderType={activeTab}
           />
         </div>
       </div>
-    </div>
 
-
-    {/* Fixed Bottom Section */}
-    <div className="border-t border-gray-200 bg-gray-50 px-3 pt-2 pb-1">
-      <TotalSummary
-        totalPrice={totalPrice}
-        taxAmount={taxAmount}
-        appliedDiscount={appliedDiscount}
-        onDiscountClick={() => setShowDiscountOverlay(true)}
-      />
-
-      <DiscountInput
-        discountType={discountType}
-        setDiscountType={setDiscountType}
-        discountValue={discountValue}
-        setDiscountValue={setDiscountValue}
-        handleApplyDiscount={handleApplyDiscount}
-        appliedDiscount={appliedDiscount}
-        showDiscountOverlay={showDiscountOverlay}
-        setShowDiscountOverlay={setShowDiscountOverlay}
-        handleRemoveDiscount={handleRemoveDiscount} // ← Include this prop in DiscountInput
-      />
-
-      <div className="mb-3">
-        <label className="block text-xs font-medium text-gray-700 mb-1">Payment Method</label>
-        <div className="grid grid-cols-4 gap-2">
-          {[
-            { label: "Cash", icon: <FaMoneyBillWave className="text-sm" /> },
-            { label: "Card", icon: <FaCreditCard className="text-sm" /> },
-            { label: "UPI", icon: <FaMobile className="text-sm" /> },
-            { label: "Part" },
-          ].map((method) => (
-            <button
-              key={method.label}
-              onClick={() => setPaymentMethod(method.label)}
-              className={`flex items-center justify-center gap-1 px-2 py-1.5 text-xs rounded-md border transition-colors duration-150 ${
-                paymentMethod === method.label
-                  ? "bg-black text-white border-black"
-                  : "bg-gray-100 text-gray-800 hover:bg-gray-200 border-gray-300"
-              }`}
-            >
-              {method.icon}
-              {method.label}
-            </button>
-          ))}
+      {showPartModal && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
+          <PartPaymentModal
+            isOpen={showPartModal}
+            onClose={() => setShowPartModal(false)}
+            grandTotal={grandTotal}
+            onSubmit={(payments) => {
+              // Store the part payment details
+              setPartPaymentDetails(payments)
+              setShowPartModal(false)
+            }}
+          />
         </div>
-      </div>
-
-      <ActionButtons
-        cart={cart}
-        grandTotal={grandTotal}
-        paymentMethod={paymentMethod}
-        setPdfUrl={setPdfUrl}
-        pdfUrl={pdfUrl}
-        tableNumber={tableNumber}
-        peopleCount={peopleCount}
-        customerDetails={customerDetails}
-        activeTab={activeTab}
-        orderType={activeTab}
-      />
+      )}
     </div>
-  </div>
   )
 }
+
 export default BillingSection

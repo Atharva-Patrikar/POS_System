@@ -7,7 +7,7 @@ import { CartContext } from "../context/CartContext";
 const OrdersPage = () => {
   const [orders, setOrders] = useState([])
   const [activeTab, setActiveTab] = useState("current")
-  const [activeFilter, setActiveFilter] = useState("all")
+  const [activeFilter, setActiveFilter] = useState("all") // To track active filter state
   const { cart } = useContext(CartContext);
   const navigate = useNavigate()
 
@@ -52,9 +52,17 @@ const OrdersPage = () => {
       case "cancelled":
         return "bg-red-200"
       default:
-        return "bg-green-200" // Default to green for the demo
+        return "bg-green-200"
     }
   }
+
+  const filteredOrders = orders.filter((order) => {
+    if (activeFilter === "all") return true
+    if (activeFilter === "dine_in") return order.order_type === "dine_in"
+    if (activeFilter === "delivery") return order.order_type === "delivery"
+    if (activeFilter === "pickup") return order.order_type === "pickup"
+    return false;
+  })
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 overflow-y-hidden">
@@ -99,43 +107,25 @@ const OrdersPage = () => {
         </div>
       </div>
 
-      {/* Filter buttons */}
-      <div className="flex border-b">
-        <button
-          className={`flex flex-col items-center justify-center p-4 text-sm font-medium ${
-            activeFilter === "all" ? "border-b-2 border-red-600 text-red-600" : "text-gray-600"
-          }`}
-          onClick={() => setActiveFilter("all")}
-        >
-          <span>All</span>
-        </button>
-        <button
-          className={`flex flex-col items-center justify-center p-4 text-sm font-medium ${
-            activeFilter === "dine-in" ? "border-b-2 border-red-600 text-red-600" : "text-gray-600"
-          }`}
-          onClick={() => setActiveFilter("dine-in")}
-        >
-          <span>Dine In</span>
-        </button>
-        <button
-          className={`flex flex-col items-center justify-center p-4 text-sm font-medium ${
-            activeFilter === "delivery" ? "border-b-2 border-red-600 text-red-600" : "text-gray-600"
-          }`}
-          onClick={() => setActiveFilter("delivery")}
-        >
-          <span>Delivery</span>
-        </button>
-        <button
-          className={`flex flex-col items-center justify-center p-4 text-sm font-medium ${
-            activeFilter === "pickup" ? "border-b-2 border-red-600 text-red-600" : "text-gray-600"
-          }`}
-          onClick={() => setActiveFilter("pickup")}
-        >
-          <span>Pick Up</span>
-        </button>
+      {/* Filter buttons + Search + Status Indicators */}
+      <div className="flex border-b items-center flex-wrap">
+        <div className="flex">
+          {["all", "dine_in", "delivery", "pickup"].map((filter) => (
+            <button
+              key={filter}
+              className={`flex flex-col items-center justify-center p-4 text-sm font-medium ${
+                activeFilter === filter ? "border-b-2 border-red-600 text-red-600" : "text-gray-600"
+              }`}
+              onClick={() => setActiveFilter(filter)}
+            >
+              <span>
+                {filter === "dine_in" ? "Dine In" : filter.charAt(0).toUpperCase() + filter.slice(1)}
+              </span>
+            </button>
+          ))}
+        </div>
 
-        {/* Search box */}
-        <div className="ml-auto p-4">
+        <div className="ml-auto flex items-center p-4 gap-6">
           <div className="relative">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -157,22 +147,21 @@ const OrdersPage = () => {
               className="pl-10 pr-4 py-2 border rounded-md w-64 text-sm focus:outline-none focus:ring-2 focus:ring-red-600"
             />
           </div>
-        </div>
-      </div>
 
-      {/* Status indicators */}
-      <div className="flex justify-end p-4 text-sm">
-        <div className="flex items-center mr-4">
-          <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-          <span>Printed</span>
-        </div>
-        <div className="flex items-center mr-4">
-          <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
-          <span>Not Printed</span>
-        </div>
-        <div className="flex items-center">
-          <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-          <span>Cancelled</span>
+          <div className="flex items-center space-x-4 text-sm">
+            <div className="flex items-center">
+              <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+              <span>Printed</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+              <span>Not Printed</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+              <span>Cancelled</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -181,53 +170,32 @@ const OrdersPage = () => {
         <table className="min-w-full">
           <thead className="bg-gray-100">
             <tr>
-              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                Order No.
-              </th>
-              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                Order Type
-              </th>
-              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                Customer Phone
-              </th>
-              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                Customer Name
-              </th>
-              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                Payment Type
-              </th>
-              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                My Amount (₹)
-              </th>
-              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                Tax (₹)
-              </th>
-              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                Discount (₹)
-              </th>
-              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                Grand Total (₹)
-              </th>
-              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                Created
-              </th>
-              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                Actions
-              </th>
+              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Order No.</th>
+              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Order Type</th>
+              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Customer Phone</th>
+              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Customer Name</th>
+              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Payment Type</th>
+              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">My Amount (₹)</th>
+              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Tax (₹)</th>
+              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Discount (₹)</th>
+              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Grand Total (₹)</th>
+              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Created</th>
+              <th className="py-2 px-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {orders.map((order, index) => (
+            {filteredOrders.map((order, index) => (
               <tr key={index} className={getRowClass(order.status)}>
                 <td className="py-3 px-3 text-sm text-gray-800">{order.order_number}</td>
                 <td className="py-3 px-3 text-sm text-gray-800">
-                  {order.order_type === "dine_in" && (
+                  {order.order_type === "dine_in" ? (
                     <div>
                       <div>Dine In ({order.people_count || "-"})</div>
                       <div className="text-xs italic">({order.table_info || "-"})</div>
                     </div>
+                  ) : (
+                    order.order_type
                   )}
-                  {order.order_type !== "dine_in" && order.order_type}
                 </td>
                 <td className="py-3 px-3 text-sm text-gray-800">{order.customer_phone || "-"}</td>
                 <td className="py-3 px-3 text-sm text-gray-800">{order.customer_name || "-"}</td>
@@ -249,10 +217,7 @@ const OrdersPage = () => {
                     {order.status !== "cancelled" && (
                       <>
                         <span>|</span>
-                        <button
-                          className="underline hover:text-blue-800 font-medium"
-                          onClick={() => handleCancel(order.id)}
-                        >
+                        <button className="underline hover:text-blue-800 font-medium" onClick={() => handleCancel(order.id)}>
                           Cancel
                         </button>
                       </>
