@@ -4,6 +4,7 @@ const { sequelize } = require("../models")
 
 // POST - Save new order
 router.post("/", async (req, res) => {
+  console.log("Incoming Order Body:", req.body);  //new line added, remove later
   const { order_type, table_info, people_count, customer, payment_type, subtotal, tax, discount, grand_total, items } =
     req.body;
 

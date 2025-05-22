@@ -18,17 +18,18 @@ const ActionButtons = ({
   const [isPrinted, setIsPrinted] = useState(false)
   const [settlementAmount, setSettlementAmount] = useState("")
 
-  // 🔹 Save Order Function
+  const TAX_RATE = 0.05; // 5% tax
+
   const saveOrder = async () => {
-    const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0)
-    const tax = 0
-    const discount = 0
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+    const tax = subtotal * TAX_RATE; // 5% tax on subtotal
+    const discount = subtotal + tax - grandTotal;
 
     const customerData = {
       name: customerDetails?.name || "",
       phone: customerDetails?.phone || "",
       address: customerDetails?.address || "",
-    }
+    };
 
     const response = await fetch("http://localhost:5000/api/orders", {
       method: "POST",
@@ -45,10 +46,12 @@ const ActionButtons = ({
         grand_total: grandTotal,
         items: cart,
       }),
-    })
+    });
 
-    return response.json()
-  }
+    return response.json();
+  };
+
+
 
   // 🔹 Save & Print
   const handleSaveAndPrint = async () => {

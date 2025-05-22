@@ -86,7 +86,7 @@ const OrderDetailsPage = () => {
   }
 
   return (
-    <div className="flex flex-col w-full h-full overflow-hidden">
+    <div className="flex flex-col w-full min-h-screen overflow-y-auto">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
         <h1 className="text-xl font-medium">Order Detail</h1>
