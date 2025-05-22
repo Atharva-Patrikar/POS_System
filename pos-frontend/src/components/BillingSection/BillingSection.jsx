@@ -118,10 +118,10 @@ const BillingSection = ({
           setPeopleCount={setPeopleCount}
           showPeopleInput={showPeopleInput}
           setShowPeopleInput={setShowPeopleInput}
-          partPaymentDetails={partPaymentDetails} // Passing part payment details
-          setShowPartModal={setShowPartModal} // Passing function to show part payment modal
-          showCartView={true} // Add this prop if it's used in OrderTypeToggle
-          setShowCartView={() => {}} // Add this prop if it's used in OrderTypeToggle
+          partPaymentDetails={partPaymentDetails}
+          setShowPartModal={setShowPartModal}
+          showCartView={true}
+          setShowCartView={() => {}}
         />
 
         <div className="mt-1 px-2">

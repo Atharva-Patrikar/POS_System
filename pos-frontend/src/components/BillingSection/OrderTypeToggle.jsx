@@ -1,6 +1,14 @@
 "use client"
 
-import { UserRound, Users, StickyNote, ConciergeBell, FilePenLine, CheckCircle, X } from "lucide-react"
+import {
+  UserRound,
+  Users,
+  StickyNote,
+  ConciergeBell,
+  FilePenLine,
+  CheckCircle,
+  X,
+} from "lucide-react"
 import { useState, useEffect } from "react"
 import debounce from "lodash.debounce"
 
@@ -19,22 +27,23 @@ const OrderTypeToggle = ({
   showPeopleInput,
   setShowPeopleInput,
   setShowCartView,
-  partPaymentDetails, // Assuming this prop will be passed
-  setShowPartModal, // Assuming this prop is passed for showing the part payment modal
+  partPaymentDetails,
+  setShowPartModal,
 }) => {
   const [isExistingCustomer, setIsExistingCustomer] = useState(false)
-  const [orderNumber, setOrderNumber] = useState(null) // To store the order number
+  const [orderNumber, setOrderNumber] = useState(null)
   const [showPartSummaryModal, setShowPartSummaryModal] = useState(false)
 
-  // Fetch order number from backend when the component mounts
   useEffect(() => {
     const fetchNewOrderNumber = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/orders/new-order-number")
+        const response = await fetch(
+          "http://localhost:5000/api/orders/new-order-number"
+        )
         const result = await response.json()
 
         if (result.success) {
-          setOrderNumber(result.new_order_number) // Assuming you have a state for order number
+          setOrderNumber(result.new_order_number)
         } else {
           console.error("Failed to fetch new order number.")
         }
@@ -43,7 +52,6 @@ const OrderTypeToggle = ({
       }
     }
 
-    // Call this function when needed (e.g., before creating an order)
     fetchNewOrderNumber()
   }, [])
 
@@ -56,7 +64,8 @@ const OrderTypeToggle = ({
       })
 
       const data = await response.json()
-      if (!response.ok) throw new Error(data.message || "Failed to save customer")
+      if (!response.ok)
+        throw new Error(data.message || "Failed to save customer")
       return data
     } catch (err) {
       console.error("Error saving customer:", err)
@@ -67,7 +76,11 @@ const OrderTypeToggle = ({
   const fetchCustomerByMobile = debounce(async (mobile) => {
     try {
       if (!mobile.trim()) return
-      const res = await fetch(`http://localhost:5000/api/customers/by-phone?phone=${encodeURIComponent(mobile)}`)
+      const res = await fetch(
+        `http://localhost:5000/api/customers/by-phone?phone=${encodeURIComponent(
+          mobile
+        )}`
+      )
       const customer = await res.json()
 
       if (customer && customer.name) {
@@ -94,7 +107,6 @@ const OrderTypeToggle = ({
     <>
       <div className="border-b border-gray-200 py-2 px-4 flex justify-between items-center gap-2">
         <div className="flex items-center gap-2">
-          {/* Customer Info Button */}
           <button
             className="p-1.5 bg-gray-100 rounded hover:bg-gray-200 border border-gray-300"
             title="Customer Info"
@@ -109,9 +121,12 @@ const OrderTypeToggle = ({
 
           <span className="h-5 w-px bg-gray-300" />
 
-          {/* People Count Button */}
           <button
-            className={`p-1.5 rounded border ${peopleCount > 0 ? "bg-green-100 border-green-500 text-green-700" : "bg-gray-100 hover:bg-gray-200 border-gray-300"}`}
+            className={`p-1.5 rounded border ${
+              peopleCount > 0
+                ? "bg-green-100 border-green-500 text-green-700"
+                : "bg-gray-100 hover:bg-gray-200 border-gray-300"
+            }`}
             title="No. of People"
             onClick={() => {
               setShowPeopleInput(true)
@@ -133,18 +148,20 @@ const OrderTypeToggle = ({
 
           <span className="h-5 w-px bg-gray-300" />
 
-          <button className="p-1.5 bg-gray-100 rounded hover:bg-gray-200 border border-gray-300" title="Assign Waiter">
+          <button
+            className="p-1.5 bg-gray-100 rounded hover:bg-gray-200 border border-gray-300"
+            title="Assign Waiter"
+          >
             <ConciergeBell size={16} className="text-gray-700" />
           </button>
         </div>
 
-        <div className="flex items-center gap-1 text-sm text-gray-700">
-          {/* Enquiry Icon - Visible only if part payment details exist */}
-          {partPaymentDetails && (
+        <div className="flex items-center gap-1 text-sm text-gray-700 relative">
+          {Array.isArray(partPaymentDetails) && partPaymentDetails.length > 0 && (
             <button
               className="p-1.5 mr-2 bg-yellow-50 rounded hover:bg-yellow-100 border border-yellow-300"
               title="View Part Payment Details"
-              onClick={() => setShowPartSummaryModal(true)} // Open part payment modal to show details
+              onClick={() => setShowPartSummaryModal(true)}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -167,18 +184,80 @@ const OrderTypeToggle = ({
 
           <FilePenLine size={16} className="text-gray-600" />
           <span className="font-medium">Order #{orderNumber || "Loading..."}</span>
+
+          {/* Modal Display */}
+          {showPartSummaryModal && (
+            <div className="absolute right-0 top-full mt-2 z-50 bg-white p-4 rounded-lg shadow-lg w-80 border border-gray-200">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-sm font-semibold">Part Payment Details</h3>
+                <button
+                  onClick={() => setShowPartSummaryModal(false)}
+                  className="text-gray-500 hover:text-black"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div className="space-y-2 max-h-60 overflow-y-auto text-sm">
+                {Array.isArray(partPaymentDetails) && partPaymentDetails.length > 0 ? (
+                <>
+                  {typeof partPaymentDetails === "string" ? (
+                   <>
+                    {partPaymentDetails.split("\n").map((line, index) => (
+                      <div key={index} className="py-1 border-b text-sm text-gray-800">
+                        {line}
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  <div className="text-gray-500 italic">No part payments available.</div>
+                )}
+
+                  <div className="pt-2 mt-2 border-t flex justify-between font-semibold">
+                    <span>Total</span>
+                    <span>
+                      ₹
+                      {partPaymentDetails.reduce(
+                        (total, p) => total + Number(p.amount),
+                        0
+                      )}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="text-gray-500 italic">No part payments available.</div>
+              )}
+
+                <div className="pt-2 mt-2 border-t flex justify-between font-semibold">
+                  <span>Total</span>
+                  <span>
+                    ₹
+                    {partPaymentDetails.reduce(
+                      (total, p) => total + Number(p.amount),
+                      0
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Full-Screen Customer Info Form */}
+      {/* Customer Info Form */}
       {showCustomerForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
           <div className="bg-white p-4 rounded-lg shadow-lg w-80 relative">
-            <button className="absolute top-2 right-2 text-gray-500 hover:text-black" onClick={closeAllOverlays}>
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-black"
+              onClick={closeAllOverlays}
+            >
               <X size={18} />
             </button>
 
-            <label className="text-xs font-medium text-gray-600 mb-1 block">Mobile No</label>
+            <label className="text-xs font-medium text-gray-600 mb-1 block">
+              Mobile No
+            </label>
             <input
               type="tel"
               value={customerMobile}
@@ -190,7 +269,9 @@ const OrderTypeToggle = ({
               className="w-full mb-2 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none"
             />
 
-            <label className="text-xs font-medium text-gray-600 mb-1 block">Customer Name</label>
+            <label className="text-xs font-medium text-gray-600 mb-1 block">
+              Customer Name
+            </label>
             <input
               type="text"
               value={customerName}
@@ -198,7 +279,9 @@ const OrderTypeToggle = ({
               className="w-full mb-2 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none"
             />
 
-            <label className="text-xs font-medium text-gray-600 mb-1 block">Address</label>
+            <label className="text-xs font-medium text-gray-600 mb-1 block">
+              Address
+            </label>
             <textarea
               value={customerAddress}
               onChange={(e) => setCustomerAddress(e.target.value)}
@@ -211,19 +294,19 @@ const OrderTypeToggle = ({
               onClick={async () => {
                 try {
                   if (!isExistingCustomer) {
-                    // If the customer doesn't exist, save the new customer to the backend
-                    await saveCustomerToBackend(customerName, customerMobile, customerAddress)
+                    await saveCustomerToBackend(
+                      customerName,
+                      customerMobile,
+                      customerAddress
+                    )
                     alert("Customer saved successfully")
                   } else {
-                    // If the customer exists, skip the backend call and just show the alert
                     alert("Customer already exists.")
                   }
 
-                  // Regardless of whether the customer is new or not, call handleSaveCustomer to update the state/UI
                   handleSaveCustomer()
                   closeAllOverlays()
                 } catch (error) {
-                  // Show error only when trying to save a new customer and it fails
                   if (!isExistingCustomer) {
                     alert("Failed to save customer. Please try again.")
                   }
@@ -236,15 +319,20 @@ const OrderTypeToggle = ({
         </div>
       )}
 
-      {/* Full-Screen People Count Input */}
+      {/* People Count Input */}
       {showPeopleInput && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
           <div className="bg-white p-4 rounded-lg shadow-lg w-64 relative">
-            <button className="absolute top-2 right-2 text-gray-500 hover:text-black" onClick={closeAllOverlays}>
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-black"
+              onClick={closeAllOverlays}
+            >
               <X size={18} />
             </button>
 
-            <label className="text-xs font-medium mb-1 block text-gray-600">No. of People</label>
+            <label className="text-xs font-medium mb-1 block text-gray-600">
+              No. of People
+            </label>
             <div className="flex items-center gap-2">
               <input
                 type="number"
@@ -253,103 +341,16 @@ const OrderTypeToggle = ({
                 value={peopleCount}
                 onChange={(e) => setPeopleCount(Number(e.target.value))}
               />
-              <button className="text-green-600 hover:text-green-800" onClick={closeAllOverlays}>
+              <button
+                className="text-green-600 hover:text-green-800"
+                onClick={closeAllOverlays}
+              >
                 <CheckCircle size={20} />
               </button>
             </div>
           </div>
         </div>
       )}
-
-      {/* Part Payment Summary Modal */}
-      <div className="relative inline-block">
-        {/* Show icon only if part payment details exist */}
-        {/* Part Payment Summary Modal */}
-          <div className="relative inline-block">
-            {partPaymentDetails && (
-              <button
-                className="p-1.5 bg-yellow-50 rounded hover:bg-yellow-100 border border-yellow-300"
-                title="View Part Payment Details"
-                onClick={() => setShowPartSummaryModal(!showPartSummaryModal)}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-yellow-600"
-                >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="16" x2="12" y2="12"></line>
-                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
-              </button>
-            )}
-
-            {showPartSummaryModal && (
-              <div className="absolute left-0 top-full mt-2 z-50 bg-white p-4 rounded-lg shadow-lg w-80 border border-gray-200">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-sm font-semibold">Part Payment Details</h3>
-                  <button
-                    onClick={() => setShowPartSummaryModal(false)}
-                    className="text-gray-500 hover:text-black"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-
-                <div className="space-y-2 max-h-60 overflow-y-auto text-sm">
-                  {partPaymentDetails.split("\n").map((line, index) => {
-                    let formattedLine = line.includes("UPI")
-                      ? line.replace("Paid via UPI", "Paid via Other [UPI]")
-                      : line;
-
-                    return (
-                      <div key={index} className="py-1 border-b">
-                        {formattedLine}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
-
-        {/* Pop-up displayed below icon */}
-        {showPartSummaryModal && (
-          <div className="absolute left-0 top-full mt-2 z-50 bg-white p-4 rounded-lg shadow-lg w-80 border border-gray-200">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-semibold">Part Payment Details</h3>
-              <button
-                onClick={() => setShowPartSummaryModal(false)}
-                className="text-gray-500 hover:text-black"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <div className="space-y-2 max-h-60 overflow-y-auto text-sm">
-              {partPaymentDetails.split("\n").map((line, index) => {
-                let formattedLine = line.includes("UPI")
-                  ? line.replace("Paid via UPI", "Paid via Other [UPI]")
-                  : line;
-
-                return (
-                  <div key={index} className="py-1 border-b">
-                    {formattedLine}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
     </>
   )
 }
