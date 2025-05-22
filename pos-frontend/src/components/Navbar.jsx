@@ -22,7 +22,8 @@ const Navbar = ({ toggleSidebar }) => {
     <nav className="bg-black text-white p-4 flex items-center justify-between">
       {/* Left: Sidebar Toggle + Restaurant Name + New Order Button */}
       <div className="flex items-center space-x-4">
-        <button onClick={toggleSidebar} className="text-white text-2xl">
+        <button onClick={toggleSidebar} className="text-white text-2xl md:hidden">
+          {/* Hide hamburger on medium+ screens if you want */}
           <FaBars />
         </button>
         <h1 className="text-lg font-bold">Restaurant POS</h1>

@@ -109,43 +109,8 @@ const ActionButtons = ({
 
   return (
     <div className="flex flex-col space-y-2 text-xs">
-      <div className="flex justify-between items-center space-x-2">
-        {/* Save Button */}
-        <button
-          onClick={handleSaveOnly}
-          className="flex items-center justify-center bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 flex-1"
-        >
-          <FaSave className="mr-1" />
-          Save
-        </button>
 
-        {/* Save & Print Button */}
-        <button
-          onClick={handleSaveAndPrint}
-          className="flex items-center justify-center bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 flex-1"
-        >
-          <FaPrint className="mr-1" />
-          Save & Print
-        </button>
-
-        {/* eBill Button */}
-        <button
-          className="flex items-center justify-center bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 flex-1"
-        >
-          <FaFileInvoice className="mr-1" />
-          eBill
-        </button>
-
-        {/* Hold Button */}
-        <button
-          className="flex items-center justify-center bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 flex-1"
-        >
-          <FaPause className="mr-1" />
-          Hold
-        </button>
-      </div>
-
-      {/* 🔸 Settlement Input Section - Shown After Print */}
+      {/* 🔹 Show Settlement First if Printed */}
       {isPrinted && (
         <div className="flex items-center space-x-2">
           <input
@@ -163,8 +128,34 @@ const ActionButtons = ({
           </button>
         </div>
       )}
+
+      {/* 🔹 Save & Print Buttons */}
+      <div className="flex justify-between items-center space-x-2">
+        <button onClick={handleSaveOnly} className="flex items-center justify-center bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 flex-1">
+          <FaSave className="mr-1" /> Save
+        </button>
+
+        <button onClick={handleSaveAndPrint} className="flex items-center justify-center bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 flex-1">
+          <FaPrint className="mr-1" /> Save & Print
+        </button>
+
+        <button className="flex items-center justify-center bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 flex-1">
+          <FaFileInvoice className="mr-1" /> eBill
+        </button>
+
+        <button className="flex items-center justify-center bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 flex-1">
+          <FaPause className="mr-1" /> Hold
+        </button>
+      </div>
+
+      {/* 🔹 KOT Buttons Below */}
+      <div className="flex justify-between items-center space-x-2 pt-2">
+        <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-600 flex-1">KOT</button>
+        <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-600 flex-1">KOT & Print</button>
+      </div>
     </div>
   )
+
 }
 
 export default ActionButtons

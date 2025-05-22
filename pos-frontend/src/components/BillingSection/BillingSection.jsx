@@ -125,7 +125,7 @@ const BillingSection = ({
         />
 
         <div className="mt-1 px-2">
-          <div className="h-[200px] overflow-y-auto pr-1">
+          <div className="h-[250px] overflow-y-auto pr-1">
             <SelectedItems
               cart={cart}
               removeFromCart={removeFromCart}
@@ -140,9 +140,7 @@ const BillingSection = ({
       {/* Fixed Bottom Section */}
       <div className="border-t border-gray-200 bg-gray-50 px-3 pt-2 pb-1">
         <TotalSummary
-          totalPrice={totalPrice}
-          taxAmount={taxAmount}
-          appliedDiscount={appliedDiscount}
+          grandTotal={grandTotal}
           onDiscountClick={() => setShowDiscountOverlay(true)}
         />
 
