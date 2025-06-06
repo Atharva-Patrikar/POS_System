@@ -4,6 +4,7 @@ const categoryRoutes = require('./routes/category');
 const dishRoutes = require('./routes/dish');
 const orderRoutes = require('./routes/order');
 const customerRoutes = require("./routes/customers"); // 💡 Move this up
+const tableRoutes = require('./routes/tables');
 
 const { sequelize } = require('./models');
 
@@ -17,6 +18,7 @@ app.use("/api/customers", customerRoutes); // ✅ Now it works!
 app.use('/api', categoryRoutes);
 app.use('/api', dishRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/tables", tableRoutes);
 
 const PORT = process.env.PORT || 5000;
 
